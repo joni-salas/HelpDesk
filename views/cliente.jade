@@ -1,0 +1,250 @@
+extends layout 
+block content 
+    .container
+        h1.text-start(style="margin-top: 80px;") Bienvenido #{cliente.nombre} #{cliente.apellido}
+
+        //-------------------------------------MODAL SOLICITUDES RESUELTAS----------------------------------///
+    .container  
+        #ModalSolicitudesResueltas.modal.fade(tabindex='-1' aria-labelledby='exampleModalLabel' aria-hidden='true')
+            .modal-dialog.modal-xl
+              .modal-content
+                .modal-header
+                  h5.modal-title Solicitudes Resueltas
+                  button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                .modal-body
+                  h2(style="text-align:center;") Solicitudes Resueltas
+                  table.table.caption-top.table-light.table-hover(style="font-size: 15px")
+                      caption Solicitudes
+                      thead
+                      tr
+                        th(scope='col') #
+                        th(scope='col') Ticket
+                        th(scope='col') Prioridad
+                        th(scope='col') Fecha Creacion
+                        th(scope='col') Detalle
+                        th(scope='col') Tipo
+                        th(scope='col') Resolucion
+                        th(scope='col') Fecha Solucion
+                        th(scope='col') Historial
+                      tbody
+                        each val in solicitudesResueltas
+                          each i in solicitudes
+                            if(val.id_solicitud == i.id_solicitud)
+                              tr(style="--bs-table-bg: #d1e7dd;--bs-table-striped-bg: #c7dbd2;--bs-table-striped-color: #000;--bs-table-active-bg: #bcd0c7;--bs-table-active-color: #000;--bs-table-hover-bg: #c1d6cc;--bs-table-hover-color: #000;color: #000;border-color: #bcd0c7;")
+                                th(scope='row') #{val.id_solicitud}
+                                td #{i.ticket}
+                                td #{i.prioridad}
+                                td #{i.fecha_solicitud.toLocaleString()}
+                                td #{i.detalle}
+                                td #{i.tipo}
+                                td #{val.detalle_solucion}
+                                td #{val.fecha_egreso.toLocaleString()}
+                                td 
+                                  form(action="/cliente/vertrayectoria", method="post")
+                                    input(value= val.id_solicitud ,type="hidden", name="id")
+                                    input.btn.btn-warning(value="Ver Trayectoria",type="submit")
+
+                .modal-footer
+                  button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Close                          
+            hr
+            //---------------------MODAL CAMBIAR CONTRASEÑA CLIENTE----------------------------//
+        #ModalContraCliente.modal.fade(tabindex='-1' aria-labelledby='exampleModalLabel' aria-hidden='true')
+            .modal-dialog
+              .modal-content
+                .modal-header
+                  h5#exampleModalLabel.modal-title Cambiar Contraseña
+                  button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                .modal-body
+                  form(action='../cliente/cambiarcontra' method="post")
+                    .mb-3
+                      label.col-form-label(for='contraActual') Contraseña Actual
+                      input.form-control(type='text' name="contraActual" required) 
+                      if(passwordActualError)
+                          label.col-form-label(for='contraActual', style="color: red" required) *#{passwordActualError}
+                    .mb-3
+                      label.col-form-label(for='contraNueva') Contraseña Nueva
+                      input.form-control(type='text' name="contraNueva" required)
+                      if(passwordError)
+                          label.col-form-label(for='contraNueva', style="color: red" required) *#{passwordError}
+                    .mb-3
+                      label.col-form-label(for='contraRepeNueva') Repetir contraseña nueva
+                      input.form-control(type='text' name="contraRepeNueva" required) 
+                      if(passwordError)
+                          label.col-form-label(for='contraRepeNueva', style="color: red" required) *#{passwordError}
+                    .mb-3.text-center
+                      button.btn.btn-primary(type='submit') Aplicar Cambios
+                .modal-footer
+                  button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Close
+
+                //---------------------MODAL EDITAR PERFIL CLIENTE----------------------------//
+        #ModalEditarPerfil.modal.fade(data-bs-backdrop='static' data-bs-keyboard='false' tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true')
+                  .modal-dialog
+                    .modal-content
+                      .modal-header
+                        h5#staticBackdropLabel.modal-title Editar perfil
+                        button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                      .modal-body
+                        form(method="post" action="../cliente/editarperfil")
+                          .mb-3
+                            label.form-label(for='nombre') Nombre
+                            input.form-control.form-control-sm(type='text' name="nombre" required)
+                          .mb-3
+                            label.form-label(for='apellido') Apellido
+                            input.form-control.form-control-sm(type='text' name="apellido" required) 
+                          .mb-3
+                            label.form-label(for='celular') Celular
+                            input.form-control.form-control-sm(type='tel' name="celular" required)
+                          .mb-3
+                            label.form-label(for='fecha') Fecha Nacimiento
+                            input.form-control.form-control-sm(type='date' name="fecha" required)
+                          .mb-3.text-center
+                            button.btn.btn-primary(type='submit') Guardar cambios
+                          .modal-footer
+                            button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Cerrar
+
+        //-------------------------------------------MODAL CREAR SOLICITUD--------------------------------------//
+        #crearSolicitud.modal.fade(data-bs-backdrop='static' data-bs-keyboard='false' tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true')
+                  .modal-dialog
+                    .modal-content
+                      .modal-header
+                        h5#staticBackdropLabel.modal-title Crear Solicitud
+                        button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                      .modal-body
+                        form(method="post" action="../cliente/crearsolicitud")
+                          .mb-3
+                            label.form-label(for='solicitud') Tipo solicitud
+                            select.form-select(aria-label='Default select example' name="tipo" required)
+                                option(selected='') Seleccione tipo
+                                option(value='reclamo') Reclamo
+                                option(value='consulta') Consulta
+                                option(value='baja') Baja de servicio
+                          .mb-3
+                            label.form-label(for='detalle' ) Detalle
+                            textarea#floatingTextarea2.form-control(style='height: 100px', name="detalle" required)
+                          .mb-3.text-center
+                            button.btn.btn-primary(type='submit') Enviar solicitud
+                          .modal-footer
+                            button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Cerrar
+
+          //-------------------------------------------LISTAR SOLICITUDES--------------------------------------//
+    .container
+      if (buscasoli || ArrSolicitudesPendientes)
+        h2(style="text-align:center;") Mis Solicitudes
+        table.table.caption-top.table-light.table-hover
+          caption Solicitudes
+          thead
+              tr
+                th(scope='col') #
+                th(scope='col') Ticket
+                th(scope='col') Prioridad
+                th(scope='col') Fecha Solicitud
+                th(scope='col') Detalle
+                th(scope='col') Tipo
+                th(scope='col') DNI cliente
+                th(scope='col') Actualizar
+                th(scope='col') Ver Trayectoria
+          tbody
+              each val in buscasoli ? JSON.parse(buscasoli) : ArrSolicitudesPendientes
+                  tr(style= val.prioridad=="Alta" ?  '--bs-table-bg: #f8d7da;--bs-table-striped-bg: #eccccf;--bs-table-striped-color: #000;--bs-table-active-bg: #dfc2c4;--bs-table-active-color: #000;--bs-table-hover-bg: #e5c7ca;--bs-table-hover-color: #000;color: #000;border-color: #dfc2c4;' : "--bs-table-bg: #d1e7dd;--bs-table-striped-bg: #c7dbd2;--bs-table-striped-color: #000;--bs-table-active-bg: #bcd0c7;--bs-table-active-color: #000;--bs-table-hover-bg: #c1d6cc;--bs-table-hover-color: #000;color: #000;border-color: #bcd0c7;")
+                    th(scope='row') #{val.id_solicitud}
+                    td #{val.ticket}
+                    td #{val.prioridad}
+                    if(ArrSolicitudesPendientes)
+                      td #{val.fecha_solicitud.toLocaleString()}
+                    else 
+                      td #{val.fecha_solicitud}
+                    td #{val.detalle}
+                    td #{val.tipo}
+                    td #{val.dni_cliente}
+                    td
+                        .modal.fade(tabindex='-1' aria-labelledby='modalModificarSolicitud' aria-hidden='true', id=`actualizar${val.id_solicitud}`)
+                          .modal-dialog
+                            .modal-content
+                                .modal-header
+                                    h5#modalModificarSolicitud.modal-title Modificar Solicitud 
+                                    button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                                .modal-body
+                                  form(method="post" action="/cliente/actualizarsolicitud")
+                                    input(value= val.id_solicitud ,type="hidden", name="id")
+                                    .mb-3
+                                      label.form-label(for='apellido') Tipo solicitud
+                                      select.form-select(aria-label='Default select example' name="tipo")
+                                          option(selected='') #{val.tipo}
+                                          option(value='Reclamo') Reclamo
+                                          option(value='Consulta') Consulta
+                                          option(value='Baja de servicio') Baja de servicio
+                                    .mb-3
+                                      label.form-label(for='apellido') Detalle
+                                      textarea#floatingTextarea2.form-control(style='height: 100px', name="detalle") #{val.detalle}
+                                    .mb-3.text-center
+                                      button.btn.btn-primary(type='submit') Actualizar solicitud
+                        button.btn.btn-primary(type='button' data-bs-toggle='modal' data-bs-target=`#actualizar${val.id_solicitud}`)| Actualizar
+                    td
+                      form(action="/cliente/vertrayectoria", method="post")
+                        input(value= val.id_solicitud ,type="hidden", name="id")
+                        input.btn.btn-warning(value="Ver Trayectoria",type="submit")
+
+            //---------------------------------------------VER TRAYECTORIA---------------------------------//
+
+    .container
+      if (TrayeGlobal)
+          #ModalVerTrayectoria.modal.fade(tabindex='-1' aria-labelledby='' aria-hidden='true')
+            .modal-dialog.modal-xl
+              .modal-content
+                .modal-header
+                  h5.modal-title Ver Trayectoria
+                  button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                .modal-body
+                  h2(style="text-align:center;") Trayectoria
+                  table.table.caption-top.table-light.table-hover(style="font-size: 15px")
+                      caption Solicitudes
+                      thead
+                        tr
+                          th(scope='col') Ticket
+                          th(scope='col') Detalle
+                          th(scope='col') Empleado DNI
+                          th(scope='col') Detalle de Transferencia
+                          th(scope='col') Area
+                          th(scope='col') Resolucion
+                          th(scope='col') Fecha Solucion
+                      tbody
+                        each sr in JSON.parse(TrayeGlobal)
+                              tr(style="--bs-table-bg: #d1e7dd;--bs-table-striped-bg: #c7dbd2;--bs-table-striped-color: #000;--bs-table-active-bg: #bcd0c7;--bs-table-active-color: #000;--bs-table-hover-bg: #c1d6cc;--bs-table-hover-color: #000;color: #000;border-color: #bcd0c7;")
+                                th(scope='row') #{sr.solicitud.ticket}
+                                td #{sr.estado}
+                                td #{sr.dni_empleado}
+                                td #{sr.detalle_razon}
+                                td #{sr.area.nombre_area}
+                                td #{sr.detalle_solucion}
+                                td #{sr.fecha_egreso}
+                .modal-footer
+                  button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Close
+                                 
+          
+                //----------------------------------SCRIPTS---------------------------------------//
+    if(passwordError) 
+                    script.
+                      var myModal = new bootstrap.Modal(document.getElementById('ModalContraCliente'), {
+                        keyboard: false
+                      })
+                      myModal.show();
+                      window.history.replaceState({}, document.title, "../../cliente");
+    if(passwordActualError) 
+                    script.
+                      var myModal = new bootstrap.Modal(document.getElementById('ModalContraCliente'), {
+                        keyboard: false
+                      })
+                      myModal.show();
+                      window.history.replaceState({}, document.title, "../../cliente");
+    if(buscasoli)
+                    script.
+                      window.history.replaceState({}, document.title, "../../cliente");
+    if(TrayeGlobal)
+                    script.
+                      var myModal = new bootstrap.Modal(document.getElementById('ModalVerTrayectoria'), {
+                      keyboard: false
+                      })
+                      myModal.show();
+                      window.history.replaceState({}, document.title, "../../cliente");
+
+              

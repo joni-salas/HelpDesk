@@ -1,0 +1,200 @@
+html(lang="es")
+  head
+    title= title
+    meta(charset='UTF-8')
+    meta(http-equiv='X-UA-Compatible' content='IE=edge')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    script(src='/javascripts/bootstrap.bundle.js')
+    link(rel="stylesheet", href='/stylesheets/bootstrap.css') 
+  style.
+    .carousel-item{
+        min-height: 400px;
+        background-size: cover;
+        font-size: 26px;
+    }
+    .alert{
+      padding: 1rem 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid transparent;
+      border-radius: 0.25rem;
+      width: 50%;
+      padding-right: var(--bs-gutter-x, 0.75rem);
+      padding-left: var(--bs-gutter-x, 0.75rem);
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+
+block content
+
+  //-----------------------------------Nabvar-------------------------------------//
+  nav.navbar.navbar-expand-lg.navbar-light.bg-dark
+    .container-fluid
+      a.navbar-brand.text-white(href='/') HelpDesk
+      button.navbar-toggler(type='button' data-bs-toggle='collapse' data-bs-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation')
+        span.navbar-toggler-icon
+      #navbarSupportedContent.collapse.navbar-collapse
+        ul.navbar-nav.me-auto.mb-2.mb-lg-0
+
+        form#Formbuscar.d-flex(action='/buscasolicitud' method="post", )
+          input.form-control.me-2(type='search' placeholder='N° Ticket' aria-label='Search' name="ticketIndex")
+          button.btn.btn-outline-success(type='submit') Buscar
+
+  //------------------------------Carrusel de imagenes----------------------------------//
+
+  #carouselExampleCaptions.carousel.slide(data-bs-ride='carousel')
+    .carousel-indicators
+      button.active(type='button' data-bs-target='#carouselExampleCaptions' data-bs-slide-to='0' aria-current='true' aria-label='Slide 1')
+      button(type='button' data-bs-target='#carouselExampleCaptions' data-bs-slide-to='1' aria-label='Slide 2')
+      button(type='button' data-bs-target='#carouselExampleCaptions' data-bs-slide-to='2' aria-label='Slide 3')
+    .carousel-inner.text-dark
+      .carousel-item.active
+        img.d-block.w-100(src='/images/carrusel3 - copia.jpeg' alt='...')
+        .carousel-caption.d-none.d-md-block.text-dark
+          h5 Eficacia y Rapida Respuesta
+          p Tenemos trabajando los mejores analistas del mercado.
+      .carousel-item.text-dark
+        img.d-block.w-100(src='/images/carrusel8.jpg' alt='...')
+        .carousel-caption.d-none.d-md-block.text-dark.text-center
+          h5 Lider en mercado 
+          p.text-center Conseguimos ser el centro de ayuda mejor calificado en 2021!
+      .carousel-item
+        img.d-block.w-100(src='/images/carrusel9.jpg' alt='...')
+        .carousel-caption.d-none.d-md-block.text-withe
+          h5 Mejoramos dia a dia
+          p Nos basamos en las necesidades del cliente para seguir mejorando!
+
+    //--------------------------------Mensaje flash-------------------------------------//
+
+    .card-img-overlay
+      .container
+        if success_msg !=""
+            .alert.alert-success.alert-dismissible.fade.show(role='alert')
+                h5= success_msg
+                button.btn-close(type='button' data-bs-dismiss='alert' aria-label='Close')
+
+        if error_msg !=""
+            .alert.alert-danger.alert-dismissible.fade.show(role='alert')
+                h5= error_msg
+                button.btn-close(type='button' data-bs-dismiss='alert' aria-label='Close')
+        
+        if confirmacion
+          .alert.alert-warning.alert-dismissible.fade.show(role='alert')
+            strong Atencion!!
+            |  #{confirmacion}
+            button.btn-close(type='button' data-bs-dismiss='alert' aria-label='Close')
+
+          script.
+              window.history.replaceState({}, document.title, "../../");
+
+              //------------------------------Buscar solicitud index----------------------------------//      
+        #Modalbuscar.modal(tabindex='-1')
+          .modal-dialog 
+            .modal-content
+              .modal-header
+                h5.modal-title Ver solicitud
+                button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+              .modal-body
+                if(ticket)
+                  h6 Ticket: #{ticket.ticket}
+                  h6 Prioridad: #{ticket.prioridad}
+                  h6 Fecha: #{ticket.fecha_solicitud.toLocaleString()}
+                  h6 Detalle: #{ticket.detalle}
+                  h6 Tipo: #{ticket.tipo}
+                  h6 Dni: #{ticket.dni_cliente}
+                  hr
+                  h6 Para Ver mas informacion de la solicitud, inicie sesion
+              .modal-footer
+                button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Close
+
+    //------------------------------Form iniciar session----------------------------------//
+    .card-img-overlay
+      .container
+        .row.justify-content-center.align-items-center.vh-100
+          .col-sm-4.d-sm-block.d-none
+            h1.text-white Help Desk ULP
+          .col-sm-4.text-center
+            .card.shadow-lg
+              .card-body
+                form(action='/login' method="post")
+                  .form-group
+                    h2.h4.text-center.text-info.text-dark Iniciar Sesion
+                    br
+                    .form-group
+                      input.form-control(type='mail' placeholder='E-mail:' name="email")
+                      br
+                    .form-group
+                      input.form-control(type='password' placeholder='Contraseña:' name="contra")
+                      br
+                    input.btn-lg.btn-outline-primary.btn-block(type='submit' value='Iniciar sesion')
+                    hr
+                  button.btn.btn-outline-success(type='button' data-bs-toggle='modal' data-bs-target='#staticBackdrop')
+                      | Crear cuenta nueva
+                      //--------------------- Modal registrar Cliente----------------------------------///
+                #staticBackdrop.modal.fade(data-bs-backdrop='static' data-bs-keyboard='false' tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true')
+                  .modal-dialog
+                    .modal-content
+                      .modal-header
+                        h5#staticBackdropLabel.modal-title Crear cuenta cliente
+                        button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                      .modal-body
+                        form(method="post" action="/registrarCliente")
+                          .mb-3
+                            label.form-label(for='dni') DNI
+                            input.form-control.form-control-sm(type='text' name="dni" required value=mailCliente ? mailCliente.dni : "")
+                            if(dniCliente)
+                              label.form-label(for='dni', style="color: red" required) *#{dniCliente.dniexiste}
+                          .mb-3
+                            label.form-label(for='nombre') Nombre
+                            input.form-control.form-control-sm(type='text' name="nombre" required value=dniCliente ? value=dniCliente.nombre : mailCliente ? mailCliente.nombre : "")
+                          .mb-3
+                            label.form-label(for='apellido') Apellido
+                            input.form-control.form-control-sm(type='text' name="apellido" required value=dniCliente ? value=dniCliente.apellido : mailCliente ? mailCliente.apellido : "")
+                          .mb-3
+                            label.form-label(for='mail') E-Mail
+                            input.form-control.form-control-sm(type='text' name="email" id="mail" required value=dniCliente ? value=dniCliente.mail : "")
+                            if(mailCliente)
+                              label.form-label(for='dni', style="color: red" required) *#{mailCliente.emailExiste}
+                          .mb-3
+                            label.form-label(for='celular') Celular
+                            input.form-control.form-control-sm(type='tel' name="celular" required value=dniCliente ? value=dniCliente.celular : mailCliente ? mailCliente.celular : "")
+                          .mb-3
+                            label.form-label(for='contraseña') Contraseña
+                            input.form-control.form-control-sm(type='password' name="contra" required )
+                          .mb-3
+                            label.form-label(for='fecha') Fecha Nacimiento
+                            input.form-control.form-control-sm(type='date' name="fecha" required value=dniCliente ? value=dniCliente.fecha : mailCliente ? mailCliente.fecha : "")
+                          .mb-3
+                            button.btn.btn-primary(type='submit') Registrarme
+                          .modal-footer
+                            button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Cerrar
+                      
+      //------------------------------------scripts-------------------------------------------------------//  
+
+  if(dniCliente) 
+                  script.
+                    var myModal = new bootstrap.Modal(document.getElementById('staticBackdrop'), {
+                      keyboard: false
+                    })
+                    myModal.show();
+                    window.history.replaceState({}, document.title, "../../");
+  if(mailCliente)
+                script.
+                  var myModal = new bootstrap.Modal(document.getElementById('staticBackdrop'), {
+                    keyboard: false
+                  })
+                  myModal.show();
+                  window.history.replaceState({}, document.title, "../../");
+  if(ticket)
+        script.
+            var myModal = new bootstrap.Modal(document.getElementById('Modalbuscar'), {
+              keyboard: false
+            })
+            myModal.show();
+            window.history.replaceState({}, document.title, "../../");
+
+                  
+                  
+                  
+                  
+            

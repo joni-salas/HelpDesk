@@ -1,0 +1,314 @@
+extends layout
+block content
+  
+    .container
+        h1.text-start(style="margin-top: 80px;") Bienvenido a Gestion #{empleadoGestion.nombre} #{empleadoGestion.apellido}
+        hr
+       //-------------------------------------MODAL CLIENTES----------------------------------///
+    .container  
+      #ModalVerClientes.modal.fade(tabindex='-1' aria-labelledby='exampleModalLabel' aria-hidden='true')
+          .modal-dialog.modal-xl
+            .modal-content
+              .modal-header
+                h5#exampleModalLabel.modal-title Clientes registrados
+                button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+              .modal-body
+                h2(style="text-align:center;") Clientes
+                  table.table.caption-top.table-light.table-hover(style="font-size: 15px")
+                    caption Clientes
+                    thead
+                      tr
+                        th(scope='col') Dni
+                        th(scope='col') Nombre
+                        th(scope='col') Apellido
+                        th(scope='col') E-mail
+                        th(scope='col') Celular
+                        th(scope='col') Fecha nacimiento
+                        th(scope='col') Estado
+                    tbody
+                      each val in clientes
+                          tr(style= val.estado=="Pendiente" ?  '--bs-table-bg: #f8d7da;--bs-table-striped-bg: #eccccf;--bs-table-striped-color: #000;--bs-table-active-bg: #dfc2c4;--bs-table-active-color: #000;--bs-table-hover-bg: #e5c7ca;--bs-table-hover-color: #000;color: #000;border-color: #dfc2c4;' : "--bs-table-bg: #d1e7dd;--bs-table-striped-bg: #c7dbd2;--bs-table-striped-color: #000;--bs-table-active-bg: #bcd0c7;--bs-table-active-color: #000;--bs-table-hover-bg: #c1d6cc;--bs-table-hover-color: #000;color: #000;border-color: #bcd0c7;")
+                            th(scope='row') #{val.dni}
+                            td #{val.nombre}
+                            td #{val.apellido}
+                            td #{val.mail}
+                            td #{val.celular}
+                            td #{val.fecha.toLocaleString()}
+                            td #{val.estado}
+                            td
+                              if(val.estado=="Pendiente")
+                                form(action="/empleadoGestion/activarCliente", method="post")
+                                  input(value= val.dni ,type="hidden", name="id")
+                                  input.btn.btn-success(value= "Habilitar",type="submit")
+                              if(val.estado=="Aceptado")
+                                form(action="/empleadoGestion/desactivarCliente", method="post")
+                                  input(value= val.dni ,type="hidden", name="id")
+                                  input.btn.btn-danger(value= "Desabilitar",type="submit")
+              .modal-footer
+                button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Close 
+
+            //------------------------------------ MODAL CAMBIAR CONTRASEÑA---------------------------------------///
+      #ModalContraEmpleado.modal.fade(tabindex='-1' aria-labelledby='exampleModalLabel' aria-hidden='true')
+            .modal-dialog
+              .modal-content
+                .modal-header
+                  h5#exampleModalLabel.modal-title Cambiar Contraseña
+                  button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                .modal-body
+                  form(action='../empleadoGestion/cambiarcontra' method="post")
+                    .mb-3
+                      label.col-form-label(for='contraActual') Contraseña Actual
+                      input.form-control(type='text' name="contraActual" required) 
+                      if(passwordActualErrorGestion)
+                          label.col-form-label(for='contraActual', style="color: red" required) *#{passwordActualErrorGestion}
+                    .mb-3
+                      label.col-form-label(for='contraNueva') Contraseña Nueva
+                      input.form-control(type='text' name="contraNueva" required)
+                      if(passwordErrorGestion)
+                          label.col-form-label(for='contraNueva', style="color: red" required) *#{passwordErrorGestion}
+                    .mb-3
+                      label.col-form-label(for='contraRepeNueva') Repetir contraseña nueva
+                      input.form-control(type='text' name="contraRepeNueva" required) 
+                      if(passwordErrorGestion)
+                          label.col-form-label(for='contraRepeNueva', style="color: red" required) *#{passwordErrorGestion}
+                    .mb-3.text-center
+                      button.btn.btn-primary(type='submit') Aplicar Cambios
+                .modal-footer
+                  button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Close
+
+            //------------------------------------ MODAL CREAR EMPLEADO---------------------------------------///
+      #ModalCrearEmpleado.modal.fade(data-bs-backdrop='static' data-bs-keyboard='false' tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true')
+                  .modal-dialog
+                    .modal-content
+                      .modal-header
+                        h5#staticBackdropLabel.modal-title Crear cuenta Empleado
+                        button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                      .modal-body
+                        form(method="post" action="/empleadoGestion/registrarEmpleado")
+                          .mb-3
+                            label.form-label(for='dni') DNI
+                            input.form-control.form-control-sm(type='text' name="dni" required value=mailEmpleadoGestion ? mailEmpleadoGestion.dni : "")
+                            if(dniEmpleadoGestion)
+                              label.form-label(for='dni', style="color: red" required ) *#{dniEmpleadoGestion.dniexiste}
+                          .mb-3
+                            label.form-label(for='nombre') Nombre
+                            input.form-control.form-control-sm(type='text' name="nombre" required value=dniEmpleadoGestion ? value=dniEmpleadoGestion.nombre : mailEmpleadoGestion ? mailEmpleadoGestion.nombre : "" )
+                          .mb-3
+                            label.form-label(for='apellido') Apellido
+                            input.form-control.form-control-sm(type='text' name="apellido" required value=dniEmpleadoGestion ? value=dniEmpleadoGestion.apellido : mailEmpleadoGestion ? mailEmpleadoGestion.apellido : "" )
+                          .mb-3
+                            label.form-label(for='email') E-Mail
+                            input.form-control.form-control-sm(type='text' name="email" id="email" required value=dniEmpleadoGestion ? value=dniEmpleadoGestion.email : mailEmpleadoGestion ? mailEmpleadoGestion.email :"" )
+                            if(mailEmpleadoGestion)
+                              label.form-label(for='email', style="color: red" required) *#{mailEmpleadoGestion.emailExiste}
+                          .mb-3
+                            label.form-label(for='telefono') Telefono
+                            input.form-control.form-control-sm(type='tel' name="telefono" required value=dniEmpleadoGestion ? value=dniEmpleadoGestion.telefono : mailEmpleadoGestion ? mailEmpleadoGestion.telefono :"" )
+                          .mb-3
+                            label.form-label(for='contraseña') Contraseña
+                            input.form-control.form-control-sm(type='password' name="contra" required)
+                          .mb-3
+                            label.form-label(for='area') Area
+                            select.form-select(aria-label='Default select example' name="area" required)
+                              option(selected='') Seleccione Area
+                              each val in areas 
+                                option(value= val.id_area) #{val.nombre_area}
+                          .mb-3
+                            label.form-label(for='fecha') Fecha Nacimiento
+                            input.form-control.form-control-sm(type='date' name="fecha" required value=dniEmpleadoGestion ? value=dniEmpleadoGestion.fecha : mailEmpleadoGestion ? mailEmpleadoGestion.fecha : "" )
+                          .mb-3.text-center
+                            button.btn.btn-primary(type='submit') Registrar
+                          .modal-footer
+                            button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Cerrar
+
+          //------------------------------------ MODAL CREAR AREA---------------------------------------//
+      #ModalCrearArea.modal.fade(data-bs-backdrop='static' data-bs-keyboard='false' tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true')
+                  .modal-dialog
+                    .modal-content
+                      .modal-header
+                        h5#staticBackdropLabel.modal-title Crear Area
+                        button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                      .modal-body
+                        form(method="post" action="/empleadoGestion/crearArea")
+                          .mb-3
+                            label.form-label(for='nombreArea') Nombre Area
+                            input.form-control.form-control-sm(type='text' name="nombreArea" required)
+                          .mb-3.text-center
+                            button.btn.btn-primary(type='submit') Crear
+                          .modal-footer
+                            button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Cerrar
+
+    .container 
+        h2(style="text-align:center;") Empleados
+        table.table.caption-top.table-light.table-hover
+          caption Empleados
+          thead
+            tr
+              th(scope='col') Dni
+              th(scope='col') Nombre
+              th(scope='col') Apellido
+              th(scope='col') E-mail
+              th(scope='col') Telefono
+              th(scope='col') Rol
+              th(scope='col') Area Trabajo
+              th(scope='col') Estado
+              th(scope='col') Act/Desac 
+              th(scope='col') Transferir
+              th(scope='col') Editar
+            tbody
+            each val in empleados
+                tr(style= val.estado=="0" ?  '--bs-table-bg: #f8d7da;--bs-table-striped-bg: #eccccf;--bs-table-striped-color: #000;--bs-table-active-bg: #dfc2c4;--bs-table-active-color: #000;--bs-table-hover-bg: #e5c7ca;--bs-table-hover-color: #000;color: #000;border-color: #dfc2c4;' : "--bs-table-bg: #d1e7dd;--bs-table-striped-bg: #c7dbd2;--bs-table-striped-color: #000;--bs-table-active-bg: #bcd0c7;--bs-table-active-color: #000;--bs-table-hover-bg: #c1d6cc;--bs-table-hover-color: #000;color: #000;border-color: #bcd0c7;")
+                  th(scope='row') #{val.dni}
+                  td #{val.nombre}
+                  td #{val.apellido}
+                  td #{val.mail}
+                  td #{val.telefono}
+                  td #{val.rol}
+                  td 
+                    each i in areas
+                      if(val.id_area == i.id_area)
+                        |#{i.nombre_area}
+                  td #{val.estado}
+                  td
+                    if(val.estado==true)
+                      form(action="/empleadoGestion/desactivar", method="post")
+                        input(value= val.dni ,type="hidden", name="id")
+                        input.btn.btn-danger(value= "Desactivar",type="submit")
+                    if(val.estado==false)
+                      form(action="/empleadoGestion/activar", method="post")
+                        input(value= val.dni ,type="hidden", name="id")
+                        input.btn.btn-success(value= "Activar",type="submit")
+                  td
+                      .modal.fade(tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true', id=`transferir${val.dni}`)
+                        .modal-dialog
+                          .modal-content
+                              .modal-header
+                                  h5#modalModificarSolicitud.modal-title Transferir de Area
+                                  button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                              .modal-body
+                                form(method="post" action="/empleadoGestion/transferir")
+                                  input(value= val.dni ,type="hidden", name="id")
+                                  .mb-3
+                                    label.form-label(for='area') Area
+                                    select.form-select(aria-label='Default select example' name="area")
+                                      option(selected='') Seleccione Area
+                                      each a in areas 
+                                        if(a.estado==true)
+                                          option(value= a.id_area) #{a.nombre_area}
+                                  .mb-3.text-center
+                                    button.btn.btn-primary(type='submit') Transferir
+                      button.btn.btn-primary(type='button' data-bs-toggle='modal' data-bs-target=`#transferir${val.dni}`)| Transferir
+                  td
+                      .modal.fade(tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true', id=`editar${val.dni}`)
+                        .modal-dialog
+                          .modal-content
+                              .modal-header
+                                  h5#modalModificarSolicitud.modal-title Editar Empleado
+                                  button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                              .modal-body
+                                form(method="post" action="/empleadoGestion/editarEmpleado")
+                                  input(value= val.dni ,type="hidden", name="id")
+                                  .mb-3
+                                    label.form-label(for='nombre') Nombre
+                                    input.form-control.form-control-sm(type='text' name="nombre" required value=val.nombre) 
+                                  .mb-3
+                                    label.form-label(for='apellido') Apellido
+                                    input.form-control.form-control-sm(type='text' name="apellido" required value=val.apellido) 
+                                  .mb-3
+                                    label.form-label(for='email') E-Mail
+                                    input.form-control.form-control-sm(type='email' name="email" required value=val.mail ) 
+                                  .mb-3
+                                    label.form-label(for='telefono') Telefono
+                                    input.form-control.form-control-sm(type='tel' name="telefono" value=val.telefono ) 
+                                  .mb-3.text-center
+                                    button.btn.btn-primary(type='submit') Guardar cambios
+                      button.btn.btn-primary(type='button' data-bs-toggle='modal' data-bs-target=`#editar${val.dni}`)| Editar Perfil
+    br
+    hr
+    .container 
+        h2(style="text-align:center;") Areas
+        table.table.caption-top.table-light.table-hover
+          caption Areas
+          thead
+            tr
+              th(scope='col') Numero
+              th(scope='col') Nombre
+              th(scope='col') Estado  
+              th(scope='col') Act/Desac 
+              th(scope='col') Editar
+          tbody
+            each val in areas
+                tr(style= val.estado=="0" ?  '--bs-table-bg: #f8d7da;--bs-table-striped-bg: #eccccf;--bs-table-striped-color: #000;--bs-table-active-bg: #dfc2c4;--bs-table-active-color: #000;--bs-table-hover-bg: #e5c7ca;--bs-table-hover-color: #000;color: #000;border-color: #dfc2c4;' : "--bs-table-bg: #d1e7dd;--bs-table-striped-bg: #c7dbd2;--bs-table-striped-color: #000;--bs-table-active-bg: #bcd0c7;--bs-table-active-color: #000;--bs-table-hover-bg: #c1d6cc;--bs-table-hover-color: #000;color: #000;border-color: #bcd0c7;")
+                  th(scope='row') #{val.id_area}
+                  td #{val.nombre_area}
+                  td #{val.estado}
+                  td
+                    if(val.estado==true)
+                      form(action="/empleadoGestion/desactivarArea", method="post")
+                        input(value= val.id_area ,type="hidden", name="id")
+                        input.btn.btn-danger(value= "Desactivar",type="submit")
+                    if(val.estado==false)
+                      form(action="/empleadoGestion/activarArea", method="post")
+                        input(value= val.id_area ,type="hidden", name="id")
+                        input.btn.btn-success(value= "Activar",type="submit")
+                  td 
+                    .modal.fade(tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true', id=`editarArea${val.id_area}`)
+                      .modal-dialog
+                        .modal-content
+                          .modal-header
+                            h5#staticBackdropLabel.modal-title Modificar Area
+                            button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                          .modal-body
+                            form(method="post" action="/empleadoGestion/editarArea")
+                              input(value= val.id_area ,type="hidden", name="idArea")
+                              .mb-3
+                                label.form-label(for='nombreArea') Nombre Area
+                                input.form-control.form-control-sm(type='text' name="nombreArea" required, value=val.nombre_area)
+                              .mb-3.text-center
+                                button.btn.btn-primary(type='submit') Actualizar
+                              .modal-footer
+                                button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Cerrar
+                    button.btn.btn-primary(type='button' data-bs-toggle='modal' data-bs-target=`#editarArea${val.id_area}`)| Editar Area
+
+
+                  //------------------SCRIPTS----------------------------///
+    if(passwordErrorGestion) 
+                    script.
+                      var myModal = new bootstrap.Modal(document.getElementById('ModalContraEmpleado'), {
+                        keyboard: false
+                      })
+                      myModal.show();
+                      window.history.replaceState({}, document.title, "../../empleadoGestion");
+    if(passwordActualErrorGestion) 
+                    script.
+                      var myModal = new bootstrap.Modal(document.getElementById('ModalContraEmpleado'), {
+                        keyboard: false
+                      })
+                      myModal.show();
+                      window.history.replaceState({}, document.title, "../../empleadoGestion");   
+    if(dniEmpleadoGestion) 
+                  script.
+                    var myModal = new bootstrap.Modal(document.getElementById('ModalCrearEmpleado'), {
+                      keyboard: false
+                    })
+                    myModal.show();
+                    window.history.replaceState({}, document.title, "../../empleadoGestion");
+    if(mailEmpleadoGestion)
+                  script.
+                    var myModal = new bootstrap.Modal(document.getElementById('ModalCrearEmpleado'), {
+                      keyboard: false
+                    })
+                    myModal.show();
+                    window.history.replaceState({}, document.title, "../../empleadoGestion");  
+    if(activar)
+                  script.
+                    var myModal = new bootstrap.Modal(document.getElementById('ModalVerClientes'), {
+                      keyboard: false
+                    })
+                    myModal.show();
+                    window.history.replaceState({}, document.title, "../../empleadoGestion");                
+
+                      
+           
+
+                  

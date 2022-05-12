@@ -1,0 +1,146 @@
+doctype html
+html(lang="es")
+  head
+    if(empleadoGestion)
+      title Empleado Gestion 
+    if(cliente)
+      title Cliente
+    if(empleadoHelpdesk)
+      title Empleado HelpDesk
+    if(empleadoCalidad)
+      title Empleado Calidad
+    meta(charset='UTF-8')
+    meta(http-equiv='X-UA-Compatible' content='IE=edge')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    script(src='/javascripts/bootstrap.bundle.js')
+    link(rel="stylesheet" href='/stylesheets/bootstrap.css') 
+    script.
+          function validaCerrarCuenta(){
+            let confirmacion = confirm("Desea eliminar de manera permanente la cuenta?");
+            return confirmacion;
+          }
+  style.
+    .alert{
+      padding: 1rem 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid transparent;
+      border-radius: 0.25rem;
+      width: 50%;
+      padding-right: var(--bs-gutter-x, 0.75rem);
+      padding-left: var(--bs-gutter-x, 0.75rem);
+      margin-right: auto;
+      margin-left: auto;
+      text-align: center;
+    }
+
+  block menu
+    .container
+      nav.navbar.navbar-expand-lg.navbar-light(style="background-color: #3E403F;")
+        .container-fluid
+          a.navbar-brand.text-white(href= cliente ?'/cliente': empleadoGestion ? '/empleadoGestion': empleadoHelpdesk ? '/empleadoHelpdesk' : empleadoCalidad ? '/empleadoCalidad': empleadoComun ? '/empleado' : '/') Inicio
+          button.navbar-toggler(type='button' data-bs-toggle='collapse' data-bs-target='#navbarNavDropdown' aria-controls='navbarNavDropdown' aria-expanded='false' aria-label='Toggle navigation')
+            span.navbar-toggler-icon
+          #navbarNavDropdown.collapse.navbar-collapse  
+            ul.navbar-nav.mr-auto
+              li.nav-item
+              if(cliente)
+                a.nav-link.active.text-white(aria-current='page' type='button' data-bs-toggle='modal' data-bs-target='#crearSolicitud') Crear solicitud
+              if(empleadoGestion)
+                a.nav-link.active.text-white(aria-current='page' type='button' data-bs-toggle='modal' data-bs-target='#ModalCrearEmpleado') Crear Empleado
+              if(empleadoHelpdesk)
+                a.nav-link.active.text-white(aria-current='page' type='button' data-bs-toggle='modal' data-bs-target='#ModalMisResueltas') Mis Resueltas
+              if(empleadoCalidad)
+                a.nav-link.active.text-white(aria-current='page' type='button' data-bs-toggle='modal' data-bs-target='#ModalMisResueltasCalidad') Mis resueltas
+              if(empleadoComun)
+                a.nav-link.active.text-white(aria-current='page' type='button' data-bs-toggle='modal' data-bs-target='#ModalMisResueltasComun') Mis resueltas
+              li.nav-item
+              if(empleadoGestion)
+                a.nav-link.active.text-white(aria-current='page' type='button' data-bs-toggle='modal' data-bs-target='#ModalCrearArea') Crear Area
+              li.nav-item(style="margin-left: 150px;")
+              if(cliente) 
+                form.d-flex(action='../cliente/buscarticket' method="post")
+                  input.form-control.me-2(type='search' placeholder='N° Ticket' aria-label='Search' name="ticket")
+                  button.btn.btn-outline-success(type='submit') Buscar 
+              li.nav-item(style="margin-left: 250px;")
+              if(cliente)
+                button.btn.btn-primary.position-relative(type='submit' data-bs-toggle='modal' data-bs-target='#ModalSolicitudesResueltas')
+                  | Solicitudes Resueltas
+                  span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-danger
+                    | #{solicitudResueltaCount}
+                    span.visually-hidden unread messages 
+              if(empleadoGestion)
+                button.btn.btn-primary.position-relative(type='submit' data-bs-toggle='modal' data-bs-target='#ModalVerClientes')
+                  | Clientes
+                  span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-danger
+                    | #{clientesPendientes}
+                    span.visually-hidden unread messages 
+              if(empleadoHelpdesk)
+                button.btn.btn-primary.position-relative(type='submit' data-bs-toggle='modal' data-bs-target='#ModalSolicitudesPendientes')
+                  | Solicitudes Pendientes
+                  span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-danger
+                    | #{solicitudesPendientes}
+                    span.visually-hidden unread messages 
+              if(empleadoCalidad)
+                button.btn.btn-primary.position-relative(type='submit' data-bs-toggle='modal' data-bs-target='#ModalSolicitudesNotificadas')
+                  | Solicitudes Notificadas
+                  span.position-absolute.top-0.start-100.translate-middle.badge.rounded-pill.bg-danger
+                    | #{solicitudesNotificadas}
+                    span.visually-hidden unread messages
+
+            #navbarNavDropdown.collapse.navbar-collapse.d-flex.justify-content-end
+              ul.navbar-nav.justify-content-end    
+                li.nav-item.dropdown
+                  a#navbarDropdownMenuLink.nav-link.dropdown-toggle.text-white(href='#' role='button' data-bs-toggle='dropdown' aria-expanded='false')
+                    | Configuracion
+                  ul.dropdown-menu(aria-labelledby='navbarDropdownMenuLink')
+                    li
+                    if(cliente)
+                      button.btn.btn-outline-success.dropdown-item(data-bs-toggle='modal' href='#ModalEditarPerfil' role='button') Editar perfil
+                    li
+                    if(cliente)
+                      button.btn.btn-outline-success.dropdown-item(data-bs-toggle='modal' href='#ModalContraCliente' role='button') Cambiar contraseña  
+                    if(empleadoGestion)
+                      button.btn.btn-outline-success.dropdown-item(data-bs-toggle='modal' href='#ModalContraEmpleado' role='button') Cambiar contraseña
+                    if(empleadoHelpdesk)
+                      button.btn.btn-outline-success.dropdown-item(data-bs-toggle='modal' href='#ModalContraEmpleadoHelpdesk' role='button') Cambiar contraseña
+                    if(empleadoCalidad)
+                      button.btn.btn-outline-success.dropdown-item(data-bs-toggle='modal' href='#ModalContraEmpleadoCalidad' role='button') Cambiar contraseña
+                    if(empleadoComun)
+                      button.btn.btn-outline-success.dropdown-item(data-bs-toggle='modal' href='#ModalContraEmpleadoComun' role='button') Cambiar contraseña
+                    li
+                    if(cliente)
+                      form.d-flex(action='../cliente/cerrarcuenta' method="post")  
+                        button.btn.btn-outline-success.dropdown-item(type='submit' onclick="return validaCerrarCuenta();") Cerrar cuenta
+                    li
+                    if(cliente)
+                      form.d-flex(action='../cliente/cerrarsession' method="get")  
+                        button.btn.btn-outline-success.dropdown-item(type='submit') Cerrar sesion
+                    if(empleadoCalidad)
+                      form.d-flex(action='../empleadoCalidad/cerrarsession' method="get")  
+                        button.btn.btn-outline-success.dropdown-item(type='submit') Cerrar sesion
+                    if(empleadoGestion)
+                      form.d-flex(action='../empleadoGestion/cerrarsession' method="get")  
+                        button.btn.btn-outline-success.dropdown-item(type='submit') Cerrar sesion
+                    if(empleadoHelpdesk)
+                      form.d-flex(action='../empleadoHelpdesk/cerrarsession' method="get")  
+                        button.btn.btn-outline-success.dropdown-item(type='submit') Cerrar sesion
+                    if(empleadoComun)
+                      form.d-flex(action='../empleado/cerrarsession' method="get")  
+                        button.btn.btn-outline-success.dropdown-item(type='submit') Cerrar sesion
+
+    if success_msg !=""
+          .alert.alert-success.alert-dismissible.fade.show(role='alert')
+            h5= success_msg
+            button.btn-close(type='button' data-bs-dismiss='alert' aria-label='Close')
+
+    if error_msg !=""
+          .alert.alert-danger.alert-dismissible.fade.show(role='alert')
+            h5= error_msg
+            button.btn-close(type='button' data-bs-dismiss='alert' aria-label='Close')
+
+  block content
+        
+          
+
+
+            

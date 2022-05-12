@@ -1,0 +1,206 @@
+extends layout
+block content
+        .container
+            h1.text-start(style="margin-top: 80px;") Bienvenido a Empleado #{empleadoComun.nombre} #{empleadoComun.apellido}
+                                        hr 
+
+                //-------------------------------------MODAL SOLICITUDES RESUELTAS----------------------------------///
+        .container  
+            #ModalMisResueltasComun.modal.fade(tabindex='-1' aria-labelledby='exampleModalLabel' aria-hidden='true')
+                .modal-dialog.modal-xl
+                    .modal-content
+                        .modal-header
+                            h5.modal-title Mis solicitudes Resueltas
+                            button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                        .modal-body
+                            h2(style="text-align:center;") Solicitudes Resueltas
+                            table.table.caption-top.table-light.table-hover(style="font-size: 15px")
+                                caption Solicitudes
+                                thead
+                                tr
+                                    th(scope='col') Fecha Ingreso
+                                    th(scope='col') Estado
+                                    th(scope='col') Solucion
+                                    th(scope='col') Area
+                                    th(scope='col') Solicitud
+                                    th(scope='col') Empleado DNI
+                                    th(scope='col') Fecha Resolucion
+                                tbody
+                                each val in solicitudesResueltas
+                                    if(empleadoComun.dni==val.dni_empleado && val.estado=="Resuelto")
+
+                                        tr
+                                            th(scope='row') #{val.fecha_ingreso.toLocaleString()}
+                                            td #{val.estado}
+                                            td #{val.detalle_solucion}
+                                            td #{val.id_area}
+                                            td #{val.id_solicitud}
+                                            td #{val.dni_empleado}
+                                            td #{val.fecha_egreso.toLocaleString()}
+                        .modal-footer
+                            button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Close                                    
+
+                //------------------------------------ MODAL CAMBIAR CONTRASEÑA---------------------------------------///
+            
+            #ModalContraEmpleadoComun.modal.fade(tabindex='-1' aria-labelledby='exampleModalLabel' aria-hidden='true')
+                    .modal-dialog
+                        .modal-content
+                            .modal-header
+                                h5#exampleModalLabel.modal-title Cambiar Contraseña
+                                button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                            .modal-body
+                                form(action='../empleado/cambiarcontra' method="post")
+                                    .mb-3
+                                    label.col-form-label(for='contraActual') Contraseña Actual
+                                    input.form-control(type='text' name="contraActual" required) 
+                                    if(passwordActualErrorComun)
+                                        label.col-form-label(for='contraActual', style="color: red" required) *#{passwordActualErrorComun}
+                                    .mb-3
+                                    label.col-form-label(for='contraNueva') Contraseña Nueva
+                                    input.form-control(type='text' name="contraNueva" required)
+                                    if(passwordErrorComun)
+                                        label.col-form-label(for='contraNueva', style="color: red" required) *#{passwordErrorComun}
+                                    .mb-3
+                                    label.col-form-label(for='contraRepeNueva') Repetir contraseña nueva
+                                    input.form-control(type='text' name="contraRepeNueva" required) 
+                                    if(passwordErrorComun)
+                                        label.col-form-label(for='contraRepeNueva', style="color: red" required) *#{passwordErrorComun}
+                                    .mb-3.text-center
+                                        button.btn.btn-primary(type='submit') Aplicar Cambios
+                            .modal-footer
+                                button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Close
+
+                    //-------------------------------------------Solicitudes Resolver----------------------------------------------//
+        .container  
+                h2(style="text-align:center;") Solicitudes Pendientes
+                table.table.caption-top.table-light.table-hover(style="font-size: 15px")
+                    caption Solicitudes
+                    thead
+                        tr
+                            th(scope='col') #
+                            th(scope='col') Ticket
+                            th(scope='col') Prioridad
+                            th(scope='col') Fecha Creacion
+                            th(scope='col') Detalle
+                            th(scope='col') Tipo
+                            th(scope='col') DNI Cliente
+                            th(scope='col') Resolver
+                            th(scope='col') Transferir 
+                            th(scope='col') Ver Trayectoria
+                        body
+                        each val in ArrSolicitudes
+                                tr(style= val.prioridad=="Alta" ?  '--bs-table-bg: #f8d7da;--bs-table-striped-bg: #eccccf;--bs-table-striped-color: #000;--bs-table-active-bg: #dfc2c4;--bs-table-active-color: #000;--bs-table-hover-bg: #e5c7ca;--bs-table-hover-color: #000;color: #000;border-color: #dfc2c4;' : "--bs-table-bg: #d1e7dd;--bs-table-striped-bg: #c7dbd2;--bs-table-striped-color: #000;--bs-table-active-bg: #bcd0c7;--bs-table-active-color: #000;--bs-table-hover-bg: #c1d6cc;--bs-table-hover-color: #000;color: #000;border-color: #bcd0c7;")
+                                    th(scope='row') #{val.id_solicitud}
+                                    td #{val.ticket}
+                                    td #{val.prioridad}
+                                    td #{val.fecha_solicitud.toLocaleString()}
+                                    td #{val.detalle}
+                                    td #{val.tipo}
+                                    td #{val.dni_cliente}
+                                    td
+                                        .modal.fade(tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true', id=`resolverSoli${val.id_solicitud}`)
+                                            .modal-dialog
+                                                .modal-content
+                                                    .modal-header
+                                                        h5.modal-title Resolver Solicitud
+                                                        button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                                                    .modal-body
+                                                        form(method="post" action="/empleado/resolverSolicitud")
+                                                            input(value= val.id_solicitud ,type="hidden", name="id")
+                                                            input(value= val.fecha_solicitud.toLocaleString() ,type="hidden", name="fechaHistorial")
+                                                            .mb-3
+                                                                label.form-label(for='apellido') Detalle de la solucion
+                                                                textarea#textArea.form-control(style='height: 100px', name="detalleSolucion", required)
+                                                            .mb-3.text-center
+                                                                button.btn.btn-success(type='submit') Resolver   
+                                                            .modal-footer
+                                                                button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Cerrar
+                                        button.btn.btn-success(type='button' data-bs-toggle='modal' data-bs-target=`#resolverSoli${val.id_solicitud}`)| Resolver
+                                    td 
+                                        .modal.fade(tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true', id=`transferir${val.id_solicitud}`)
+                                            .modal-dialog
+                                                .modal-content
+                                                    .modal-header
+                                                        h5.modal-title Transferir
+                                                        button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                                                    .modal-body
+                                                        form(method="post" action="/empleado/transferirSolicitud")
+                                                            input(value= val.id_solicitud ,type="hidden", name="id")
+                                                            input(value= val.fecha_solicitud.toLocaleString() ,type="hidden", name="fechaHistorial")
+                                                            .mb-3
+                                                                label.form-label(for='apellido') Detalle de Razon de transferencia
+                                                                textarea#textArea.form-control(style='height: 100px', name="detalleRazon" required)
+                                                            .mb-3
+                                                                select.form-select(aria-label='Default select example' name="areaTransferir", required)
+                                                                    option(selected='' ) Seleccione Area
+                                                                    each a in areas 
+                                                                        if(a.estado==true)
+                                                                            option(value= a.id_area) #{a.nombre_area}
+                                                            .mb-3.text-center
+                                                                button.btn.btn-primary(type='submit') Transferir   
+                                                            .modal-footer
+                                                                button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Cerrar
+                                        button.btn.btn-primary(type='button' data-bs-toggle='modal' data-bs-target=`#transferir${val.id_solicitud}`)| Transferir
+                                    td 
+                                        form(action="/empleado/trayectoriaNoResuelta", method="post")
+                                            input(value= val.id_solicitud ,type="hidden", name="id")
+                                            input.btn.btn-warning(value="Ver Trayectoria",type="submit")
+
+                    //---------------------------------------------VER TRAYECTORIA---------------------------------//
+
+        .container
+        if (TrayeSolicitud)
+            #ModalVerTrayectoriaSolicitud.modal.fade(tabindex='-1' aria-labelledby='' aria-hidden='true')
+                .modal-dialog.modal-xl
+                    .modal-content
+                        .modal-header
+                            h5.modal-title Ver Trayectoria
+                            button.btn-close(type='button' data-bs-dismiss='modal' aria-label='Close')
+                        .modal-body
+                            h2(style="text-align:center;") Trayectoria
+                            table.table.caption-top.table-light.table-hover(style="font-size: 15px")
+                                caption Solicitudes
+                                thead
+                                    tr
+                                    th(scope='col') Ticket
+                                    th(scope='col') Detalle
+                                    th(scope='col') Empleado DNI
+                                    th(scope='col') Detalle de Transferencia
+                                    th(scope='col') Area
+                                    th(scope='col') Resolucion
+                                    th(scope='col') Fecha Solucion
+                                tbody
+                                    each sr in JSON.parse(TrayeSolicitud)
+                                        tr(style="--bs-table-bg: #d1e7dd;--bs-table-striped-bg: #c7dbd2;--bs-table-striped-color: #000;--bs-table-active-bg: #bcd0c7;--bs-table-active-color: #000;--bs-table-hover-bg: #c1d6cc;--bs-table-hover-color: #000;color: #000;border-color: #bcd0c7;")
+                                            th(scope='row') #{sr.solicitud.ticket}
+                                            td #{sr.estado}
+                                            td #{sr.dni_empleado}
+                                            td #{sr.detalle_razon}
+                                            td #{sr.area.nombre_area}
+                                            td #{sr.detalle_solucion}
+                                            td #{sr.fecha_egreso}
+                        .modal-footer
+                            button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Close                                                            
+
+                                            //--------------------SCRIPTS----------------------------//
+        if(passwordErrorComun) 
+                    script.
+                      var myModal = new bootstrap.Modal(document.getElementById('ModalContraEmpleadoComun'), {
+                        keyboard: false
+                      })
+                      myModal.show();
+                      window.history.replaceState({}, document.title, "../../empleado");
+        if(passwordActualErrorComun) 
+                    script.
+                      var myModal = new bootstrap.Modal(document.getElementById('ModalContraEmpleadoComun'), {
+                        keyboard: false
+                      })
+                      myModal.show();
+                      window.history.replaceState({}, document.title, "../../empleado"); 
+        if(TrayeSolicitud)
+                    script.
+                      var myModal = new bootstrap.Modal(document.getElementById('ModalVerTrayectoriaSolicitud'), {
+                      keyboard: false
+                      })
+                      myModal.show();
+                      window.history.replaceState({}, document.title, "../../empleado");
